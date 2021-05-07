@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      padding-top: 40px;
+    }
+
+    svg {
+      width: 800px;
+      height: 800px;
+    }
+  </style>
+  <script src="https://d3js.org/d3-hierarchy.v2.min.js"></script>
+</head>
+
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <!-- <circle cx="200" cy="200" r="40" stroke="black" stroke-width="2" fill="orange"></circle> -->
+  </svg>
+</body>
+<script>
+  var data = {
+    "name": "中国",
+    "children": [
+      { "name": "浙江", "children": [{ "name": "杭州" }, { "name": "宁波" }, { "name": "温州" }, { "name": "绍兴" }] },
+      { "name": "广西", "children": [{ "name": "桂林" }, { "name": "南宁" }] }
+    ]
+  }
+  const regions = d3.hierarchy(data).sum(d => 1).sort((a, b) => b.value - a.value);
+  const pack = d3.pack().size([800, 800]).padding(3);
+  const root = pack(regions);
+
+  function draw(svgRoot, node) {
+    const { x, y, r } = node
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+
+    circle.setAttribute('cx', x)
+    circle.setAttribute('cy', y)
+    circle.setAttribute('r', r)
+    circle.setAttribute('fill', "rgba(0,0,0,0.2)")
+
+    svgRoot.appendChild(circle)
+  }
+
+  function drawNode(node, parent = document.querySelector('svg')) {
+    const { children = [] } = node
+
+    if (children.length) {
+      for (let i = 0; i < children.length; i++) {
+        var childNode = children[i]
+        drawNode(childNode)
+      }
+    }
+
+    draw(parent, node)
+  }
+
+  console.log(root)
+  drawNode(root)
+</script>
+
+</html>
