@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vertex</title>
+  <script src="./rough.js"></script>
+  <style>
+    canvas {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 20px;
+      background-color: #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="demo1" width="512" height="256"></canvas>
+  <canvas id="demo2" width="512" height="256"></canvas>
+</body>
+
+<script>
+  function drawDemo1() {
+    const m1 = [
+      {
+        x: 76,
+        y: 256
+      },
+      {
+        x: 176,
+        y: 156
+      },
+      {
+        x: 276,
+        y: 256
+      }]
+    const m2 = [
+      {
+        x: 236,
+        y: 256
+      },
+      {
+        x: 336,
+        y: 156
+      },
+      {
+        x: 436,
+        y: 256
+      }
+    ]
+
+    const sun = {
+      x: 256,
+      y: 106,
+      r: 105
+    }
+
+    const rc = rough.canvas(document.getElementById('demo1'))
+    const ctx = rc.ctx
+    ctx.clearRect(0, 0, 512, 256)
+    const hillOpts = {
+      roughness: 2.8,
+      strokeWidth: 2,
+      fill: 'blue'
+    }
+
+    let p1 = 'M' + m1.map(item => {
+      return item.x + " " + item.y
+    }).join('L')
+    let p2 = 'M' + m2.map(item => {
+      return item.x + " " + item.y
+    }).join('L')
+
+    rc.path(p1, hillOpts)
+    rc.path(p2, hillOpts)
+    rc.circle(sun.x, sun.y, sun.r, {
+      stroke: 'red',
+      strokeWidth: 4,
+      fill: 'rgba(255,255,0,0.4)',
+      fillStyle: "solid"
+    })
+  }
+
+  function drawDemo2() {
+    const m1 = [
+      {
+        x: 76,
+        y: 256
+      },
+      {
+        x: 176,
+        y: 156
+      },
+      {
+        x: 276,
+        y: 256
+      }]
+    const m2 = [
+      {
+        x: 236,
+        y: 256
+      },
+      {
+        x: 336,
+        y: 156
+      },
+      {
+        x: 436,
+        y: 256
+      }
+    ]
+
+    const sun = {
+      x: 256,
+      y: 106,
+      r: 105
+    }
+
+    const rc = rough.canvas(document.getElementById('demo2'))
+    const ctx = rc.ctx
+    ctx.translate(0, 256)
+    ctx.scale(1, -1)
+
+    const hillOpts = {
+      roughness: 2.8,
+      strokeWidth: 2,
+      fill: 'blue'
+    }
+
+    let p1 = 'M' + m1.map(item => {
+      return item.x + " " + item.y
+    }).join('L')
+    let p2 = 'M' + m2.map(item => {
+      return item.x + " " + item.y
+    }).join('L')
+
+    rc.path(p1, hillOpts)
+    rc.path(p2, hillOpts)
+    rc.circle(sun.x, sun.y, sun.r, {
+      stroke: 'red',
+      strokeWidth: 4,
+      fill: 'rgba(255,255,0,0.4)',
+      fillStyle: "solid"
+    })
+  }
+
+  drawDemo1()
+  drawDemo2()
+</script>
+
+</html>
