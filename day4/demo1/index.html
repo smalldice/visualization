@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>parametric</title>
   <script src="../../lib/vector.js"></script>
   <script src="../../lib/initCanvas.js"></script>
   <style>
@@ -72,6 +72,9 @@
     const ctx = canvas.getContext('2d')
     initCanvas(canvas, ctx)
 
+    // 椭圆/圆曲线方程
+    // x = x0 + a * cos(rad)
+    // y = y0 + a * sin(rad)
     const para = parametric(
       t => 25 * t,
       t => 25 * t ** 2
@@ -86,6 +89,10 @@
     const ctx = canvas.getContext('2d')
     initCanvas(canvas, ctx)
 
+    // 抛物线方程
+    // P是常数， 为焦点到准线的距离
+    // x = x0 + 2pt**2
+    // y = y0 + 2pt
     const helical = parametric(
       (t, l) => l * t * Math.cos(t),
       (t, l) => l * t * Math.sin(t)

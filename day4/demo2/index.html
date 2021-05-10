@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Triangulation</title>
+  <script src="../../lib/vector.js"></script>
+  <script src="../../lib/initCanvas.js"></script>
+  <script src="../../lib/earcut.js"></script>
+  <style>
+    canvas {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 20px;
+      background-color: #eee;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="demo1" width="600" height="500"></canvas>
+  <canvas id="demo2" width="600" height="500"></canvas>
+  <canvas id="demo3" width="600" height="500"></canvas>
+  <canvas id="demo4" width="600" height="500"></canvas>
+  <canvas id="demo5" width="600" height="500"></canvas>
+
+</body>
+
+<script>
+  function draw(ctx, points, {
+    fillStyle = 'black',
+    close = false,
+    rule = 'nonzero'
+  } = {}) {
+    ctx.beginPath()
+    ctx.moveTo(...points[0])
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(...points[i])
+    }
+    if (close) context.closePath()
+    ctx.fillStyle = fillStyle
+    ctx.fill(rule)
+    // ctx.stroke()
+    // ctx.closePath()
+  }
+
+  function drawDemo1() {
+    const canvas = document.getElementById('demo1')
+    const ctx = canvas.getContext('2d')
+    const points = [new Vector2D(0, 100)]
+    initCanvas(canvas, ctx)
+
+    for (let i = 1; i <= 5; i++) {
+      const p = points[0].copy().rotate(i * Math.PI * 0.4)
+      points.push(p)
+    }
+
+    const polygon = [
+      ...points
+    ]
+
+    ctx.save()
+    draw(ctx, polygon)
+  }
+
+  function drawDemo2() {
+    const canvas = document.getElementById('demo2')
+    const ctx = canvas.getContext('2d')
+    const points = [new Vector2D(0, 100)]
+    initCanvas(canvas, ctx)
+
+    for (let i = 1; i <= 5; i++) {
+      const p = points[0].copy().rotate(i * Math.PI * 0.4)
+      points.push(p)
+    }
+
+    const stars = [
+      points[0],
+      points[2],
+      points[4],
+      points[1],
+      points[3]
+    ]
+
+    // draw(ctx, stars, { rule: 'evenodd' })
+    draw(ctx, stars)
+  }
+
+  function drawDemo3() {
+    const canvas = document.getElementById('demo3')
+    const gl = canvas.getContext('webgl')
+    const verticles = [
+      [-0.7, 0.5], [-0.4, 0.3], [-0.25, 0.71], [-0.1, 0.56], [-0.1, 0.13], [0.4, 0.21], [0, -0.6], [-0.3, -0.3], [-0.6, -0.3], [-0.45, 0.0]
+    ]
+    const points = verticles.flat()
+    const triangles = earcut(points)
+
+    const { program } = initGlProgram(gl)
+    const position = new Float32Array(points)
+    const cells = new Uint16Array(triangles)
+    const pointBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, pointBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, position, gl.STATIC_DRAW)
+
+    const vPosition = gl.getAttribLocation(program, 'position')
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0)
+    gl.enableVertexAttribArray(vPosition)
+
+  }
+
+  function initGlProgram(gl) {
+    const vertex = `
+      attribute vec2 position;
+
+      void main() {
+        gl_PointSize = 1.0;
+        gl_Position = vec4(position, 1.0, 1.0);
+      }
+    `
+
+    const fragment = `
+      precision mediump float;
+
+      void main () {
+        gl_FragColor = vec4(1.0, 0, 0, 1.0)
+      }
+    `
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
+
+    gl.shaderSource(vertexShader, vertex)
+    gl.shaderSource(fragmentShader, fragment)
+    gl.compileShader(vertexShader)
+    gl.compileShader(fragmentShader)
+
+    const program = gl.createProgram()
+    gl.attachShader(program, vertexShader)
+    gl.attachShader(program, fragmentShader)
+    gl.linkProgram(program)
+    gl.useProgram(program)
+
+    return {
+      program
+    }
+  }
+
+  drawDemo1()
+  drawDemo2()
+  drawDemo3()
+</script>
+
+</html>
