@@ -100,14 +100,21 @@
     const { program } = initGlProgram(gl)
     const position = new Float32Array(points)
     const cells = new Uint16Array(triangles)
+
     const pointBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, pointBuffer)
     gl.bufferData(gl.ARRAY_BUFFER, position, gl.STATIC_DRAW)
+
+    const cellsBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cellsBuffer)
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cells, gl.STATIC_DRAW)
 
     const vPosition = gl.getAttribLocation(program, 'position')
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0)
     gl.enableVertexAttribArray(vPosition)
 
+    gl.clear(gl.COLOR_BUFFER_BIT)
+    gl.drawElements(gl.LINE_STRIP, cells.length, gl.UNSIGNED_SHORT, 0)
   }
 
   function initGlProgram(gl) {
@@ -124,7 +131,7 @@
       precision mediump float;
 
       void main () {
-        gl_FragColor = vec4(1.0, 0, 0, 1.0)
+        gl_FragColor = vec4(1.0, 0, 0, 1.0);
       }
     `
 
