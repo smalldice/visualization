@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PointInPath</title>
+  <script src="../../lib/vector.js"></script>
+  <script src="../../lib/initCanvas.js"></script>
+  <script src="../../lib/earcut.js"></script>
+  <style>
+    canvas {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 20px;
+      background-color: #eee;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="demo1" width="600" height="500"></canvas>
+  <canvas id="demo2" width="600" height="500"></canvas>
+  <canvas id="demo3" width="600" height="500"></canvas>
+  <canvas id="demo4" width="600" height="500"></canvas>
+  <canvas id="demo5" width="600" height="500"></canvas>
+
+</body>
+
+<script>
+  function drawDemo1() {
+    const canvas = document.getElementById('demo1')
+    const ctx = canvas.getContext('2d')
+    initCanvas(canvas, ctx)
+
+    const { left, top } = canvas.getBoundingClientRect()
+
+    const positions = [
+      [-0.7, 0.5], [-0.4, 0.3], [-0.25, 0.71], [-0.1, 0.56], [-0.1, 0.13], [0.4, 0.21], [0, -0.6], [-0.3, -0.3], [-0.6, -0.3], [-0.45, 0.0]
+    ].map(p => {
+      return [p[0] * canvas.width / 2, p[1] * canvas.height / 2]
+    })
+
+    canvas.addEventListener('mousemove', e => {
+      const { x, y } = e
+      const offsetX = x - left
+      const offsetY = y - top
+
+      ctx.clearRect(-256, -256, 512, 512)
+
+      if (ctx.isPointInPath(offsetX, offsetY)) {
+        draw(ctx, positions, 'transparent', 'green')
+      } else {
+        draw(ctx, positions, 'transparent', 'red')
+      }
+    })
+  }
+
+  function drawDemo2() {
+    const canvas = document.getElementById('demo2')
+    const ctx = canvas.getContext('2d')
+    initCanvas(canvas, ctx)
+
+    const positions = [
+      [-0.7, 0.5], [-0.4, 0.3], [-0.25, 0.71], [-0.1, 0.56], [-0.1, 0.13], [0.4, 0.21], [0, -0.6], [-0.3, -0.3], [-0.6, -0.3], [-0.45, 0.0]
+    ].map(p => {
+      return [p[0] * canvas.width / 2, p[1] * canvas.height / 2]
+    })
+
+    draw(ctx, positions, 'transparent', 'red');
+    // 小三角形
+    draw(ctx, [[100, 100], [100, 200], [150, 200]], 'transparent', 'blue');
+
+    const { left, top } = canvas.getBoundingClientRect();
+
+    canvas.addEventListener('mousemove', (evt) => {
+      const { x, y } = evt;
+      // 坐标转换
+      const offsetX = x - left;
+      const offsetY = y - top;
+
+      ctx.clearRect(-256, -256, 512, 512);
+
+      // 判断 offsetX、offsetY 的坐标是否在多边形内部
+      // ctx.isPointInPath() 只能判断最后绘制的小三角形范围
+      if (ctx.isPointInPath(offsetX, offsetY)) {
+        draw(ctx, positions, 'transparent', 'green');
+        draw(ctx, [[100, 100], [100, 200], [150, 200]], 'transparent', 'orange');
+      } else {
+        draw(ctx, positions, 'transparent', 'red');
+        draw(ctx, [[100, 100], [100, 200], [150, 200]], 'transparent', 'blue');
+      }
+    });
+
+  }
+
+  function drawDemo3() {
+    const canvas = document.getElementById('demo3')
+    const ctx = canvas.getContext('2d')
+    initCanvas(canvas, ctx)
+    const { left, top } = canvas.getBoundingClientRect()
+
+    const clonedCanvas = ctx.canvas.cloneNode()
+    const clonedContext = clonedCanvas.getContext('2d')
+    initCanvas(clonedCanvas, clonedContext)
+
+    const positions = [
+      [-0.7, 0.5], [-0.4, 0.3], [-0.25, 0.71], [-0.1, 0.56], [-0.1, 0.13], [0.4, 0.21], [0, -0.6], [-0.3, -0.3], [-0.6, -0.3], [-0.45, 0.0]
+    ].map(p => {
+      return [p[0] * canvas.width / 2, p[1] * canvas.height / 2]
+    })
+    const triangles = [[100, 100], [100, 200], [150, 200]]
+
+    let ret = false
+
+    draw(ctx, positions, 'transparent', 'red')
+    draw(ctx, triangles, 'transparent', 'blue');
+
+
+    const isPointInPath = (ctx, x, y) => {
+      const clonedCanvas = ctx.canvas.cloneNode()
+      const clonedContext = clonedCanvas.getContext('2d')
+      initCanvas(clonedCanvas, clonedContext)
+
+      let ret = false
+      draw(clonedContext, positions, 'transparent', 'red')
+      ret = clonedContext.isPointInPath(x, y)
+      if (!ret) {
+        draw(clonedContext, triangles, 'transparent', 'blue')
+        ret = clonedContext.isPointInPath(x, y)
+      }
+
+      return ret
+    }
+
+    canvas.addEventListener('mousemove', (evt) => {
+      const { x, y } = evt;
+      // 坐标转换
+      const offsetX = x - left;
+      const offsetY = y - top;
+
+      ctx.clearRect(-256, -256, 512, 512);
+
+      // 判断 offsetX、offsetY 的坐标是否在多边形内部
+      // ctx.isPointInPath() 只能判断最后绘制的小三角形范围
+      if (isPointInPath(ctx, offsetX, offsetY)) {
+        draw(ctx, positions, 'transparent', 'green');
+        draw(ctx, [[100, 100], [100, 200], [150, 200]], 'transparent', 'orange');
+      } else {
+        draw(ctx, positions, 'transparent', 'red');
+        draw(ctx, [[100, 100], [100, 200], [150, 200]], 'transparent', 'blue');
+      }
+    });
+  }
+
+  function drawDemo4() {
+    const canvas = document.getElementById('demo4')
+    const ctx = canvas.getContext('2d')
+    initCanvas(canvas, ctx)
+    const { left, top } = canvas.getBoundingClientRect()
+
+    const p1 = new Vector2D(100, 100)
+    const p2 = new Vector2D(100, 200)
+    const p3 = new Vector2D(150, 200)
+
+    const v12 = p2.copy().sub(p1)
+    const v23 = p3.copy().sub(p2)
+    const v31 = p1.copy().sub(p3)
+
+
+    const isPointInPath = (x, y) => {
+      x = x - canvas.width / 2
+      y = canvas.height / 2 - y
+      const p = new Vector2D(x, y)
+      const u1 = p.copy().sub(p1)
+      const u2 = p.copy().sub(p2)
+      const u3 = p.copy().sub(p3)
+
+      const s1 = Math.sign(v12.cross(u1))
+      const s2 = Math.sign(v23.cross(u2))
+      const s3 = Math.sign(v31.cross(u3))
+
+      return s1 === s2 && s2 === s3
+    }
+    // 通过几何图形的方式， 判断点是否在图形内部
+
+    canvas.addEventListener('mousemove', (evt) => {
+      const { x, y } = evt;
+      // 坐标转换
+      const offsetX = x - left;
+      const offsetY = y - top;
+
+      ctx.clearRect(-canvas.width / 2, -canvas.height / 2, canvas.width / 2, canvas.height / 2);
+
+      // 判断 offsetX、offsetY 的坐标是否在多边形内部
+      // ctx.isPointInPath() 只能判断最后绘制的小三角形范围
+      if (isPointInPath(offsetX, offsetY)) {
+        draw(ctx, positions, 'transparent', 'green');
+        draw(ctx, [[100, 100], [100, 200], [150, 200]], 'transparent', 'orange');
+      } else {
+        draw(ctx, positions, 'transparent', 'red');
+        draw(ctx, [[100, 100], [100, 200], [150, 200]], 'transparent', 'blue');
+      }
+    });
+  }
+
+  function draw(ctx, points, strokeStyle, fillStyle = 'transparent') {
+    ctx.beginPath()
+    ctx.save()
+    ctx.moveTo(...points[0])
+
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(...points[i])
+    }
+    ctx.closePath()
+
+    if (strokeStyle) {
+      ctx.strokeStyle = strokeStyle
+    }
+
+    if (fillStyle) {
+      ctx.fillStyle = fillStyle
+      ctx.fill()
+    }
+
+    ctx.restore()
+  }
+
+  drawDemo1()
+  drawDemo2()
+  drawDemo3()
+  drawDemo4()
+</script>
+
+</html>
