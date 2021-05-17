@@ -30,3 +30,29 @@ L: Lightness 亮度
 V: Value 明度
 
 HSL 和 HSV 的表示结果比较相似
+
+HSL 和 HSV 的缺陷：
+同一行颜色差距可能很明显， 可能又不是很明显， 但都是从人观察的角度出发
+
+## CIE Lab 和 CIE Lch
+
+为了解决上述问题， 根据两个原则：
+
+1. 人眼看到的色差 = 颜色向量间的欧氏距离
+2. 相同的亮度， 能让人感觉亮度相同
+
+产生了针对人类感知的 CIE Lab 和 CIE Lch 颜色
+
+CIE Lab 目前没有能支持的图形系统。但是 Css-Level4 规范给出了 Lab 颜色值的定义
+
+```bash
+lab() = lab(<percentage> <number> <number> [/ <alpha-value>]? )
+```
+
+并且一些 javascript 库也可以直接处理 Lab 颜色空间了， 如 [d3-color](https://github.com/d3/d3-color)
+
+## Cubehelix 色盘
+
+立方螺旋色盘, 它的原理是在 RGB 立方体中构建一段螺旋线 让色相随着亮度增加螺旋变换。
+
+社区的 cubehelix 库有 [cubehelix](https://www.npmjs.com/package/cubehelix)
