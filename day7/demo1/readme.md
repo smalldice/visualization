@@ -11,3 +11,22 @@ webgl 的 shader 默认支持 RGBA， 在 webgl 中我们是使用四维向量�
 ```GLSL
 vec4 color = [red, green, blue, alpha]
 ```
+
+背景：
+随机生成 N 组由暗到亮的颜色， 每一组为一行， 从左到右依次变亮
+
+rgb 的缺点:
+
+- 随机生成， 行与行之间的色差过大或者过小
+- 无法控制颜色本身的亮度， 可能造成一行内的颜色， 色差过小
+
+因此，在动态构建视觉颜色效果的时候， 使用 HSL HSV 颜色表示方式
+
+## HSL 和 HSV
+
+H: Hue 色相
+S: Saturation 饱和度
+L: Lightness 亮度
+V: Value 明度
+
+HSL 和 HSV 的表示结果比较相似
