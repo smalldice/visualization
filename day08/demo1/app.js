@@ -8,7 +8,7 @@ function drawDemo2() {
   const vertex = `
   attribute vec2 a_vertexPosition;
   attribute vec2 uv;
-  varying vec2 uv;
+  varying vec2 vUv;
 
   void main() {
     gl_PointSize = 1.0;
@@ -27,6 +27,7 @@ function drawDemo2() {
   precision mediump float;
   #endif
 
+  varying vec2 vUv;
   uniform float rows;
 
   void main() {
@@ -38,10 +39,21 @@ function drawDemo2() {
   }
 `;
 
-  const program = renderer.compileStyle(fragment, vertex);
+  const program = renderer.compileSync(fragment, vertex);
   renderer.useProgram(program);
 
-  renderer.uniforms.rows = 64;
+  renderer.uniforms.rows = 32;
+  // const rows = [1, 4, 16, 32, 64];
+
+  // let idx = 0;
+  // const timerId = setInterval(() => {
+  //   renderer.uniforms.rows = rows[idx++];
+
+  //   if (idx > 4) {
+  //     clearInterval(timerId);
+  //   }
+  // }, 1000);
+
   renderer.setMeshData([
     {
       positions: [
@@ -65,4 +77,8 @@ function drawDemo2() {
       ],
     },
   ]);
+
+  renderer.render();
 }
+
+drawDemo2();
