@@ -81,4 +81,18 @@ function drawDemo2() {
   renderer.render();
 }
 
+function drawDemo3() {
+  const canvas = document.getElementById("demo3");
+  const gl = canvas.getContext("webgl");
+
+  const vertex = `
+    attribute vec2 position;
+
+    void main() {
+      
+    }
+  `;
+}
+
 drawDemo2();
+drawDemo3();

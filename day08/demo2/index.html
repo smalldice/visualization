@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分型</title>
+  <style>
+    canvas {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 20px;
+      background-color: #eee;
+    }
+  </style>
+  <script src="../../lib/gl-render.js"></script>
+</head>
+
+<body>
+  <canvas id="demo1" width="512" height="256"></canvas>
+  <canvas id="demo2" width="512" height="256"></canvas>
+  <canvas id="demo3" width="512" height="256"></canvas>
+</body>
+
+<script>
+  function drawDemo1() {
+    const canvas = document.getElementById('demo1')
+    const gl = canvas.getContext('webgl')
+
+    const fragment = `
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+varying vec2 vUv;
+uniform vec2 center;
+uniform float scale;
+
+vec2 f(vec2 z, vec2 c) {
+  return mat2(z, -z.y, z.x) * z + c;
+}
+
+void main() {
+  vec2 uv = vUv;
+  vec2 c = center + 4.0 * (uv - vec2(0.5)) / scale;
+  vec2 z = vec2(0.0);
+
+  bool escaped = false;
+  int j;
+  for (int i = 0; i < 65536; i++) {
+    if (i > iterations) break;
+
+    j = i;
+    z = f(z, c);
+
+    if (length(z) > 2.0) {
+      escaped = true;
+      break;
+    }
+  }
+
+  gl_FragColor.rgb = escaped ? vec3(float(j) / float(iterations)) : vec3(0.0);
+  gl_FragColor.a = 1.0;
+}
+`
+  }
+
+  drawDemo1()
+</script>
+
+</html>
