@@ -18,15 +18,26 @@
 </head>
 
 <body>
-  <canvas id="demo1" width="512" height="256"></canvas>
-  <canvas id="demo2" width="512" height="256"></canvas>
-  <canvas id="demo3" width="512" height="256"></canvas>
+  <canvas id="demo1" width="1200" height="1200"></canvas>
+  <canvas id="demo2" width="600" height="600"></canvas>
+  <canvas id="demo3" width="600" height="600"></canvas>
 </body>
 
 <script>
   function drawDemo1() {
     const canvas = document.getElementById('demo1')
-    const gl = canvas.getContext('webgl')
+
+    const vertex = `
+attribute vec2 a_vertexPosition;
+attribute vec2 uv;
+varying vec2 vUv;
+
+void main() {
+  gl_PointSize = 1.0;
+  vUv = uv;
+  gl_Position = vec4(a_vertexPosition, 1.0, 1.0);
+}
+`
 
     const fragment = `
 #ifdef GL_ES
@@ -36,6 +47,7 @@ precision mediump float;
 varying vec2 vUv;
 uniform vec2 center;
 uniform float scale;
+uniform int iterations;
 
 vec2 f(vec2 z, vec2 c) {
   return mat2(z, -z.y, z.x) * z + c;
@@ -64,9 +76,214 @@ void main() {
   gl_FragColor.a = 1.0;
 }
 `
+    const renderer = new GlRenderer(canvas)
+    const program = renderer.compileSync(fragment, vertex)
+    renderer.useProgram(program)
+    renderer.uniforms.center = [0, 0]
+    renderer.uniforms.scale = 1;
+    renderer.uniforms.iterations = 256;
+
+    renderer.setMeshData([
+      {
+        positions: [
+          [-1, -1],
+          [-1, 1],
+          [1, 1],
+          [1, -1]
+        ],
+        attributes: {
+          uv: [
+            [0, 0],
+            [0, 1],
+            [1, 1],
+            [1, 0]
+          ]
+        },
+        cells: [
+          [0, 1, 2],
+          [0, 2, 3]
+        ]
+      }
+    ])
+
+    renderer.render()
+  }
+
+  function drawDemo2() {
+    const canvas = document.getElementById('demo2')
+
+    const vertex = `
+attribute vec2 a_vertexPosition;
+attribute vec2 uv;
+varying vec2 vUv;
+
+void main() {
+  gl_PointSize = 1.0;
+  vUv = uv;
+  gl_Position = vec4(a_vertexPosition, 1.0, 1.0);
+}
+`
+
+    const fragment = `
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+varying vec2 vUv;
+uniform vec2 center;
+uniform float scale;
+uniform float u_time;
+
+float random(vec2 st) {
+  return fract(sin(dot(st.xy, vec2(12.9898, 78.223))) * 43758.5453123);
+}
+
+void main() {
+  vec2 st = vUv * vec2(100.0, 50.0);
+  st.x -= (1.0 + 10.0 * random(vec2(floor(st.y)))) * u_time;
+  vec2 ipos = floor(st);
+  vec2 fpos = fract(st);
+
+  vec3 color = vec3(step(random(ipos), 0.7));
+  color *= step(0.2, fpos.y);
+
+  gl_FragColor.rgb = color;
+  gl_FragColor.a = 1.0;
+}
+`
+    const renderer = new GlRenderer(canvas)
+    const program = renderer.compileSync(fragment, vertex)
+    renderer.useProgram(program)
+    renderer.uniforms.center = [0, 0]
+    renderer.uniforms.scale = 1;
+    renderer.uniforms.iterations = 256;
+
+    renderer.setMeshData([
+      {
+        positions: [
+          [-1, -1],
+          [-1, 1],
+          [1, 1],
+          [1, -1]
+        ],
+        attributes: {
+          uv: [
+            [0, 0],
+            [0, 1],
+            [1, 1],
+            [1, 0]
+          ]
+        },
+        cells: [
+          [0, 1, 2],
+          [0, 2, 3]
+        ],
+      }
+    ])
+    const duration = 500;
+    const update = t => {
+      renderer.uniforms.u_time = t / duration
+      renderer.render()
+      window.requestAnimationFrame(update)
+    }
+    update(0)
+  }
+
+  function drawDemo3() {
+    const canvas = document.getElementById('demo3')
+
+    const vertex = `
+attribute vec2 a_vertexPosition;
+attribute vec2 uv;
+varying vec2 vUv;
+
+void main() {
+  gl_PointSize = 1.0;
+  vUv = uv;
+  gl_Position = vec4(a_vertexPosition, 1.0, 1.0);
+}
+`
+
+    const fragment = `
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+varying vec2 vUv;
+uniform vec2 u_resolution;
+uniform int rows;
+
+float random(vec2 _st) {
+  return fract(
+    sin(
+      dot(
+        _st.xy, vec2(12.9898, 78.233)
+      )
+    ) * 43758.5453123
+  );
+}
+
+vec2 truchetPattern(vec2 _st, float _index) {
+  _index = fract((_index - 0.5) * 2.0);
+
+  if (_index > 0.75) {
+    _st = vec2(1.0) - _st;
+  } else if(_index > 0.5) {
+    _st = vec2(1.0 - _st.x, _st.y);
+  } else if(_index > 0.25) {
+    _st = vec2(1.0) - vec2(1.0 - _st.x, _st.y);
+  }
+
+  return _st;
+}
+
+void main() {
+  vec2 st = vUv * float(rows);
+  vec2 ipos = floor(st);
+  vec2 fpos = fract(st);
+  vec2 tile = truchetPattern(fpos, random(ipos));
+  float color = 0.0;
+
+  color = smoothstep(tile.x - 0.3, tile.x, tile.y) - smoothstep(tile.x, tile.x + 0.3, tile.y);
+
+  gl_FragColor.rgb = vec3(color);
+  gl_FragColor.a = 1.0;
+}
+`
+    const renderer = new GlRenderer(canvas)
+    const program = renderer.compileSync(fragment, vertex)
+    renderer.useProgram(program)
+    renderer.uniforms.rows = 64;
+
+    renderer.setMeshData([
+      {
+        positions: [
+          [-1, -1],
+          [-1, 1],
+          [1, 1],
+          [1, -1]
+        ],
+        attributes: {
+          uv: [
+            [0, 0],
+            [0, 1],
+            [1, 1],
+            [1, 0]
+          ]
+        },
+        cells: [
+          [0, 1, 2],
+          [0, 2, 3]
+        ]
+      }
+    ])
+
+    renderer.render()
   }
 
   drawDemo1()
+  drawDemo2()
+  drawDemo3()
 </script>
 
 </html>
