@@ -153,3 +153,11 @@ void main() {
   gl_FragColor = vec4(st.x, st.y, 0.0, 1.0);
 }
 ```
+
+#### glslViewer
+
+[macos 安装教程](https://github.com/patriciogonzalezvivo/glslViewer/wiki/Compiling)
+
+[加载.frag 文件](https://github.com/patriciogonzalezvivo/glslViewer/wiki/Using-GlslViewer#1-loading-a-single-fragment-shader)
+
+#### step 和 smoothstep
