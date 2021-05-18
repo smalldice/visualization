@@ -161,3 +161,7 @@ void main() {
 [加载.frag 文件](https://github.com/patriciogonzalezvivo/glslViewer/wiki/Using-GlslViewer#1-loading-a-single-fragment-shader)
 
 #### step 和 smoothstep
+
+step(a, b) a 是极限阈值, 第二是检测通过的值, a < b 返回 1, a > b 返回 0
+
+smoothstep(a, b, c) 代表的意思是， 将值 c 插入 [a, b] 的区间
