@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vector2d</title>
+  <style>
+    canvas {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 20px;
+      background-color: #eee;
+    }
+  </style>
+  <script src="./initCanvas.js"></script>
+</head>
+
+<body>
+  <canvas id="demo1" width="600" height="400"></canvas>
+  <canvas id="demo2" width="600" height="400"></canvas>
+</body>
+
+<script>
+  function drawDemo1() {
+    const { canvas, ctx } = initCanvas('demo1')
+
+  }
+
+  function drawDemo2() {
+    const { canvas, ctx } = initCanvas('demo2')
+    // 画个圆
+    // 圆的方程 x² + y² = r²
+    // x 在 [-r, r]
+    // 画一个半径为10的圆
+
+    const step = 1000
+    const r = 100
+    const gap = 2 * r // x可能在的区间长度 10 - -10
+    const oneStep = gap / step // x 每step/ gap变化
+    const positivePoints = []
+    const negativePoints = []
+
+    let x = -r
+
+    for (let i = 0; i < step; i++) {
+      const absY = Math.sqrt(r ** 2 - x ** 2)
+      positivePoints.push([
+        x,
+        absY
+      ])
+
+      if (Math.abs(x - r) !== 0) {
+        negativePoints.unshift([
+          x,
+          -absY
+        ])
+      }
+
+      x += oneStep
+    }
+
+    const allPoints = positivePoints.concat(negativePoints)
+    ctx.beginPath()
+    ctx.moveTo(...allPoints[0])
+    for (let i = 1; i < allPoints.length; i++) {
+      ctx.lineTo(...allPoints[i])
+    }
+    ctx.lineWidth = 2
+    ctx.stroke()
+  }
+
+  drawDemo1()
+  drawDemo2()
+</script>
+
+</html>
