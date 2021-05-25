@@ -20,6 +20,9 @@
 <body>
   <canvas id="demo1" width="600" height="400"></canvas>
   <canvas id="demo2" width="600" height="400"></canvas>
+  <canvas id="demo3" width="600" height="400"></canvas>
+  <canvas id="demo4" width="600" height="400"></canvas>
+  <canvas id="demo5" width="600" height="400"></canvas>
 </body>
 
 <script>
@@ -71,8 +74,87 @@
     ctx.stroke()
   }
 
+  function drawDemo3() {
+    const { canvas, ctx } = initCanvas('demo3')
+
+    const RAD = Math.PI * 2
+    const step = 100
+    const oneStep = RAD / step
+    const r = 100
+    const points = [
+      [100, 0]
+    ]
+
+    ctx.beginPath()
+    ctx.moveTo(...points[0])
+
+    for (let i = 1; i <= step; i++) {
+      const point = [r * Math.cos(oneStep * i),
+      r * Math.sin(oneStep * i)]
+      points.push(point)
+      ctx.lineTo(...point)
+    }
+
+    ctx.stroke()
+  }
+
+  function drawDemo4() {
+    const { canvas, ctx } = initCanvas('demo4')
+
+    const RAD = Math.PI * 2
+    const step = 100
+    const oneStep = RAD / step
+    const r = 100
+    const p0 = [50, 25]
+    const points = [
+      [r + p0[0], p0[1] + 0]
+    ]
+
+    ctx.beginPath()
+    ctx.moveTo(...points[0])
+
+    for (let i = 1; i <= step; i++) {
+      const point = [r * Math.cos(oneStep * i) + p0[0],
+      r * Math.sin(oneStep * i) + p0[1]]
+      points.push(point)
+      ctx.lineTo(...point)
+    }
+    ctx.stroke()
+  }
+
+  function drawDemo5() {
+    const { canvas, ctx } = initCanvas('demo5')
+
+    const RAD = Math.PI / 3
+    const step = 100
+    const oneStep = RAD / step
+    const r = 100
+    const p0 = [50, 50]
+    const points = [
+      p0
+    ]
+
+    ctx.beginPath()
+    ctx.moveTo(...points[0])
+
+    for (let i = 1; i <= step; i++) {
+      const c = Math.cos(oneStep * i)
+      const s = Math.sin(oneStep * i)
+      const point = [
+        c * p0[0] - s * p0[1],
+        s * p0[0] + c * p0[1]
+      ]
+      points.push(point)
+      ctx.lineTo(...point)
+    }
+    ctx.stroke()
+  }
+
   drawDemo1()
   drawDemo2()
+  drawDemo3()
+  drawDemo4()
+  drawDemo5()
 </script>
 
 </html>
