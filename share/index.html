@@ -23,6 +23,7 @@
   <canvas id="demo3" width="600" height="400"></canvas>
   <canvas id="demo4" width="600" height="400"></canvas>
   <canvas id="demo5" width="600" height="400"></canvas>
+  <canvas id="demo6" width="600" height="400"></canvas>
 </body>
 
 <script>
@@ -150,11 +151,43 @@
     ctx.stroke()
   }
 
+  function drawDemo6() {
+    const { canvas, ctx } = initCanvas('demo6')
+
+    const RAD = Math.PI * 2
+    const step = 100
+    const oneStep = RAD / step
+    const a = 100
+    const b = 50
+    const center = [25, -50]
+    const points = [
+      [a + center[0], center[1]]
+    ]
+
+    ctx.beginPath()
+    ctx.moveTo(...points[0])
+
+    for (let i = 1; i <= step; i++) {
+      const c = Math.cos(oneStep * i)
+      const s = Math.sin(oneStep * i)
+
+      const point = [
+        center[0] + c * a,
+        center[1] + s * b
+      ]
+      points.push(point)
+      ctx.lineTo(...point)
+    }
+
+    ctx.stroke()
+  }
+
   drawDemo1()
   drawDemo2()
   drawDemo3()
   drawDemo4()
   drawDemo5()
+  drawDemo6()
 </script>
 
 </html>
