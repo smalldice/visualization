@@ -119,27 +119,43 @@ v = 3 \* ei + 5 \* ej
 
 如何推导出像上面一样的公式来画椭圆呢。
 
-这里需要引入向量的点积：
+我们这里使用 [a, 0] 和 [0, b] 为基准向量, a,b 分别为椭圆的长轴、短轴长
 
-示意图：
+任意一点 P 可以表示为:
 
-[点积](https://pro-image.xiaoheiban.cn/202105/f99e2387-d136-460f-9c3e-ded79947a511.jpeg)
+OP = i \* OA + j \* OB
 
-向量的点积 a · b 也可以理解为是 向量 a 在向量 b 上的投影距离。
+OP = [ai, 0] + [0, bj]
 
-那么在画椭圆的时候， 使用椭圆的性质定义两个标准向量 OA = [a, 0] OB = [0, b] a, b 分别为椭圆的长轴和短轴。椭圆上任意一点和原点组成的向量 OP [x, y] 可以表示为:
+OP = [ai, bj]
 
-OP = i _ OA + j _ OB = [cosθ * a, sinθ * b] = [x, y]
+则 x = ai, y = bj
+两边平方再移项
 
-可以得出:
+x²/a² = i²
+y²/b² = j²
 
-x = a*cosθ + xc
-y = a*sinθ + yc
+根据椭圆的定义
 
-这里[xc, yc]是原点 因此都是 0
+i² + j² = 1
 
-示意图：
+那么什么概念满足这个式子呢？
 
-[椭圆](https://pro-image.xiaoheiban.cn/202105/064108d5-99b5-4f71-b86e-e8644bda82a5.jpeg)
+cos²θ + sin²θ = 1 (θ 为 OP 与 OA 的夹角)
+
+由此可得
+
+x = acosθ
+y = bsinθ
+
+当圆心为[x0, y0]时， 椭圆方程就为:
+
+(x - x0)² / a² + (y - y0)² / b² = 1
+
+x - x0 = acosθ
+y - y0 = bsinθ
+
+x = acosθ + x0
+y = bsinθ + y0
 
 > 示例见 index.html demo6
