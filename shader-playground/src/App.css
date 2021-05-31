@@ -1,3 +1,30 @@
+html,
+body {
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+}
+
+.canvas-container {
+  width: 100%;
+  background-color: #f5f6f7;
+  margin-bottom: 20px;
+  line-height: 0;
+  font-size: 0;
+}
+
+.canvas-container::after,
+.canvas-container::before {
+  display: table;
+  content: "";
+  height: 0;
+  clear: both;
+}
+
+.canvas-container canvas {
+  background-color: #eee;
+}
+
 .App {
   text-align: center;
 }
