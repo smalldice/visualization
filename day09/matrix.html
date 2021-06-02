@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrix</title>
+  <style>
+    body {
+      white-space: wrap;
+    }
+
+    div {
+      display: inline-block;
+      width: 100px;
+      height: 100px;
+      margin: 100px;
+      background-color: chocolate;
+      transition: transform 2s linear;
+      /* transform-origin: 50px 50px; */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="demo"></div>
+  <div id="demo1"></div>
+  <div id="demo2"></div>
+  <div id="demo3"></div>
+  <div id="demo4"></div>
+  <div id="demo5"></div>
+  <div id="demo6"></div>
+</body>
+
+<script>
+  function display(id, transform) {
+    const el = document.getElementById(id)
+    el.style.transform = transform
+  }
+
+  window.onload = function () {
+    // px 为逻辑像素
+    display('demo1', "scale(1.5) rotate(45deg) translate(50px, 50px)")
+
+    const deg = Math.PI / 4
+    const transform2 = `matrix(${1.5 * Math.cos(deg)},${1.5 * Math.sin(deg)},${-1.5 * Math.sin(deg)}, ${1.5 * Math.cos(deg)}, ${50 * window.devicePixelRatio}, ${50 * window.devicePixelRatio})`
+
+    display('demo2', transform2)
+
+    const skewX = 30
+    const skewY = 30
+    display('demo3', `skew(${skewX}deg, ${skewY}deg)`)
+
+    r1 = (skewX / 360) * 2 * Math.PI
+    r2 = (skewY / 360) * 2 * Math.PI
+
+    display('demo4', `matrix(1, ${Math.tan(r2)}, ${Math.tan(r1)}, 1, 0, 0)`)
+
+    display('demo5', "scale(2, 3)")
+
+    const scaleX = 2
+    const scaleY = 3
+
+
+    display("demo6", `matrix(${scaleX}, 0,0,${scaleY}, 0,0)`)
+  }
+</script>
+
+</html>
