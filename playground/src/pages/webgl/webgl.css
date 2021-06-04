@@ -1,0 +1,13 @@
+.gl-container::before,
+.gl-container::after {
+  display: table;
+  content: "";
+  width: 0;
+  height: 0;
+}
+
+.gl-container canvas {
+  display: block;
+  margin: 0 auto;
+  background-color: #eee;
+}

@@ -7,8 +7,8 @@ export const routes = [
     component: pages.IndexPage,
   },
   {
-    path: "/day1",
+    path: "/gl",
     exact: true,
-    component: pages.Day1,
+    component: pages.WebGL,
   },
 ];

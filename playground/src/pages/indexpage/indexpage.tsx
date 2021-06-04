@@ -1,10 +1,11 @@
 import React from "react";
 import { Switch, Link } from "react-router-dom";
-import { routes } from "../route";
+import { routes } from "../../route";
+import "./indexpage.css";
 
 const IndexPage = () => {
   return (
-    <div>
+    <div className="index-page">
       <Switch>
         {routes
           .filter(({ path }) => {
