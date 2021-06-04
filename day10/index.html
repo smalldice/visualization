@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="../lib/vector.js"></script>
+  <script src="../lib/initCanvas.js"></script>
+  <script src="./mat3func.js"></script>
+  <style>
+    canvas {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 20px;
+      background-color: #eee;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas width="800" height="800" id="demo1"></canvas>
+</body>
+
+<script>
+  const mat3 = new Mat3Func()
+
+  function drawDemo1() {
+    const canvas = document.getElementById('demo1')
+    const ctx = canvas.getContext('2d')
+
+    initCanvas(canvas, ctx)
+
+    const p = [
+      [20, 20],
+      [20, 120],
+      [120, 120],
+      [120, 20]
+    ]
+    const rad = 30
+
+    drawPoints(p, ctx, { closePath: true })
+    moveCube(p, ctx, rad)
+  }
+
+  function drawPoints(p, ctx, { fill = false, closePath = false } = {}, { strokeStyle = "chocolate", fillStyle = "chocolate" } = {}) {
+    ctx.save()
+    ctx.beginPath()
+    ctx.moveTo(...p[0])
+
+    for (let i = 1; i < p.length; i++) {
+      ctx.lineTo(...p[i])
+    }
+
+    if (closePath) {
+      ctx.closePath()
+    }
+
+    ctx.strokeStyle = strokeStyle
+    ctx.stroke()
+
+    if (fill) {
+      ctx.fillStyle = fillStyle
+      ctx.fill()
+    }
+
+    ctx.restore()
+  }
+
+  drawDemo1()
+</script>
+
+</html>

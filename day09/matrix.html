@@ -20,6 +20,10 @@
       transition: transform 2s linear;
       /* transform-origin: 50px 50px; */
     }
+
+    #demo7 {
+      transform-origin: 0% 100%;
+    }
   </style>
 </head>
 
@@ -31,6 +35,7 @@
   <div id="demo4"></div>
   <div id="demo5"></div>
   <div id="demo6"></div>
+  <div id="demo7"></div>
 </body>
 
 <script>
@@ -48,8 +53,8 @@
 
     display('demo2', transform2)
 
-    const skewX = 30
-    const skewY = 30
+    const skewX = 89
+    const skewY = 0
     display('demo3', `skew(${skewX}deg, ${skewY}deg)`)
 
     r1 = (skewX / 360) * 2 * Math.PI
@@ -64,6 +69,10 @@
 
 
     display("demo6", `matrix(${scaleX}, 0,0,${scaleY}, 0,0)`)
+
+    const r = 10 * window.devicePixelRatio
+    const rotateRad = 30 / 180 * Math.PI
+
   }
 </script>
 
