@@ -7,7 +7,7 @@ export interface GLProps {
   fragment: string;
   points: Float32Array;
   setupGLSL: (gl: GL, program: WebGLProgram, params?: any) => void;
-  draw?: (gl: GL, points: Float32Array) => void;
+  draw?: (gl: GL, points: Float32Array, program?: WebGLProgram) => void;
 }
 
 const setUpShader = (
@@ -52,7 +52,10 @@ const setUpProgram = (
   }
 };
 
-const setUpGL = (gl: GL, { points, vertex, fragment, setupGLSL }: GLProps) => {
+const setUpGL = (
+  gl: GL,
+  { points, vertex, fragment, setupGLSL }: GLProps
+): WebGLProgram => {
   // shader初始化
   const vertexShader = setUpShader(gl, gl.VERTEX_SHADER, vertex);
   const fragmentShader = setUpShader(gl, gl.FRAGMENT_SHADER, fragment);
@@ -70,14 +73,10 @@ const setUpGL = (gl: GL, { points, vertex, fragment, setupGLSL }: GLProps) => {
 
   gl.useProgram(program);
 
-  // 缓冲区初始化
-  const buffer = gl.createBuffer();
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
-
-  // 用户定义的， 根据GLSL 程序设置变量的过程
+  // 缓冲区初始化  用户定义的， 根据GLSL 程序设置变量的过程
   setupGLSL(gl, program);
+
+  return program;
 };
 
 const GLCanvas = (props: GLProps) => {
@@ -88,7 +87,7 @@ const GLCanvas = (props: GLProps) => {
     if (gl) {
       const { vertex, fragment, points, setupGLSL, draw } = props;
       // 数据设置
-      setUpGL(gl, {
+      const program = setUpGL(gl, {
         vertex,
         fragment,
         points,
@@ -97,7 +96,7 @@ const GLCanvas = (props: GLProps) => {
 
       // 用户定义的绘制方法
       if (draw) {
-        draw(gl, points);
+        draw(gl, points, program);
       } else {
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, props.points.length / 2);

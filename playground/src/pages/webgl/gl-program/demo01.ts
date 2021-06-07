@@ -22,6 +22,10 @@ const drawDemo1 = (): GLProps => {
   ]);
 
   const setupGLSL = (gl: GL, program: WebGLProgram) => {
+    const buffer = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
     // 取缓冲区数据方式
     const vPosition = gl.getAttribLocation(program, "position"); // vPosition 从什么位置开始取
     const size = 2; // 每次迭代取几个数据

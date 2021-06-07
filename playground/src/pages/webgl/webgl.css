@@ -6,7 +6,7 @@
   height: 0;
 }
 
-.gl-container canvas {
+.gl-container > canvas {
   display: block;
   margin: 0 auto;
   margin-bottom: 20px;
