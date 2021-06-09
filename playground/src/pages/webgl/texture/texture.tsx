@@ -1,35 +1,43 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import IMAGE_CHAI from "../../images/chai.webp";
 import "./texture.css";
 
 type GL = WebGLRenderingContext;
+
+const loadImage = (path: string): Promise<HTMLImageElement> => {
+  return new Promise((resolve) => {
+    const image = document.createElement("img");
+    image.src = path;
+    image.onload = () => {
+      resolve(image);
+    };
+  });
+};
 
 const Texture = () => {
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const [gl, setGL] = useState<GL | null>(null);
   const setupGL = useCallback((gl: GL, points: Float32Array): WebGLProgram => {
     const vertex = `
-    attribute vec4 position;
+    attribute vec2 texCoord;
 
-    uniform vec4 u_offset;
-
-    varying vec4 v_positionWithOffset;
+    varying vec2 v_texCoord;
 
     void main() {
-      gl_Position = position + u_offset;
-      v_positionWithOffset = position + u_offset;
+      gl_Position = vec4(v_texCoord, 0.0, 1.0);
+      v_texCoord = texCoord;
     }
   `;
 
     const fragment = `
     precision mediump float;
 
-    uniform sampler2D u_texture;
-    varying vec4 v_positionWithOffset;
+    uniform sampler2D u_image;
+
+    varying vec2 v_texCoord;
 
     void main() {
-      vec4 color = v_positionWithOffset * 0.5 + 0.9;
-      vec2 texcoord = vec2(0.5, 0.5);
-      gl_FragColor = color;
+      gl_FragColor = texture2D(u_image, v_texCoord);
     }
   `;
 
@@ -53,56 +61,42 @@ const Texture = () => {
     return program;
   }, []);
 
-  const howToDraw = useCallback((gl: GL, program: WebGLProgram) => {
-    // 告诉gl程序如何取 顶点 缓冲数据
-    const vPosition = gl.getAttribLocation(program, "position");
-    const size = 2;
-    const type = gl.FLOAT;
-    const normalized = false;
-    const stride = 0;
-    const pointOffset = 0;
+  const howToDraw = useCallback(
+    async (gl: GL, program: WebGLProgram, points: Float32Array) => {
+      const chaiImage = await loadImage(IMAGE_CHAI);
+      // 设置纹理
+      const texBuffer = gl.createBuffer() as WebGLBuffer;
 
-    gl.vertexAttribPointer(
-      vPosition,
-      size,
-      type,
-      normalized,
-      stride,
-      pointOffset
-    );
-    gl.enableVertexAttribArray(vPosition);
+      gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+      const position = gl.getAttribLocation(program, "texCoord");
+      const size = 2;
+      const type = gl.FLOAT;
+      const normalized = false;
+      const stride = 0;
+      const offset = 0;
 
-    // 设置其他变量
-    const u_offset = gl.getUniformLocation(program, "u_offset");
-    gl.uniform4f(u_offset, -0.5, 0, 0, 0);
+      gl.enableVertexAttribArray(position);
+      gl.vertexAttribPointer(position, size, type, normalized, stride, offset);
 
-    // 设置纹理
-    const texture = gl.createTexture() as WebGLTexture;
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    const level = 0;
-    const width = 2;
-    const height = 1;
-    const data = new Uint8Array([255, 0, 0, 255, 0, 255, 0, 255]);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      level,
-      gl.RGBA,
-      width,
-      height,
-      0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      data
-    );
+      const texture = gl.createTexture() as WebGLTexture;
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-    gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-
-    const u_texture = gl.getUniformLocation(program, "u_texture");
-    const uint = 5;
-    gl.uniform1i(u_texture, uint);
-    gl.activeTexture(gl.TEXTURE0 + uint);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-  }, []);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        chaiImage
+      );
+    },
+    []
+  );
 
   const drawArray = useCallback((gl: GL, points: Float32Array) => {
     const primitiveType = gl.TRIANGLES;
@@ -114,10 +108,12 @@ const Texture = () => {
 
   const draw = useCallback(
     (gl: GL) => {
-      const points = new Float32Array([-0.5, -0.5, 0.6, -0.6, 0, 0.8]);
+      const points = new Float32Array([
+        0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0,
+      ]);
       const program = setupGL(gl, points);
 
-      howToDraw(gl, program);
+      howToDraw(gl, program, points);
       // draw
       drawArray(gl, points);
     },
