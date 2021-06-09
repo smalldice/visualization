@@ -120,10 +120,10 @@ const TransformDemo = () => {
     gl.bufferData(gl.ARRAY_BUFFER, glPoints, gl.STATIC_DRAW);
 
     const vPosition = gl.getAttribLocation(program, "position");
-    const size = 2;
-    const type = gl.FLOAT;
-    const normalized = false;
-    const stride = 0;
+    const size = 2; // 向量表示维数， 1-4维
+    const type = gl.FLOAT; // 单位数据类型是什么 有 BYTE FLOAT INT UNSIGNED_SHORT 等
+    const normalized = false; //
+    const stride = 0; // 表示从一个位置到下一个位置， 跳过多少位数取数据 0 表示连续的
     const offset = 0;
     gl.enableVertexAttribArray(vPosition);
     gl.vertexAttribPointer(vPosition, size, type, normalized, stride, offset);
