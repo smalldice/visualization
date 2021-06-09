@@ -29,6 +29,7 @@ export function genScaleMatrix(x: number, y?: number) {
 export function genRotateMatrix(rad: number) {
   if (rad === undefined) rad = 0;
 
+  rad = rad * 2 * Math.PI;
   const c = Math.cos(rad);
   const s = Math.sin(rad);
 
@@ -39,9 +40,10 @@ export function genTranslateMatrix(x?: number, y?: number) {
   if (x === undefined) x = 0;
   if (y === undefined) y = 0;
 
-  return [1, 0, x, 0, 1, y, 0, 0, 1];
+  return [1, 0, 0, 0, 1, 0, x, y, 1];
 }
 
+// m x n
 export function matrixMultiply(m: number[], n: number[]) {
   if (m === undefined) m = genNormalizedMatrix();
   if (n === undefined) n = genNormalizedMatrix();
@@ -66,19 +68,23 @@ export function matrixMultiply(m: number[], n: number[]) {
     n32 = n[7],
     n33 = n[8];
 
-  const out = genNormalizedMatrix();
+  let out = genNormalizedMatrix();
 
-  out[0] = m11 * n11 + m12 * n21 + m13 * n31;
-  out[1] = m11 * n12 + m12 * n22 + m13 * n32;
-  out[2] = m11 * n13 + m12 * n23 + m13 * n33;
+  out[0] = m11 * n11 + m21 * n12 + m31 * n13;
+  out[1] = m11 * n21 + m21 * n22 + m31 * n23;
+  out[2] = m11 * n31 + m21 * n32 + m31 * n33;
 
-  out[3] = m21 * n11 + m22 * n21 + m23 * n31;
-  out[4] = m21 * n12 + m22 * n22 + m23 * n32;
-  out[5] = m21 * n13 + m22 * n23 + m23 * n33;
+  out[3] = m12 * n11 + m22 * n12 + m32 * n13;
+  out[4] = m12 * n21 + m22 * n22 + m32 * n23;
+  out[5] = m12 * n31 + m22 * n32 + m32 * n33;
 
-  out[6] = m31 * n11 + m32 * n21 + m33 * n31;
-  out[6] = m31 * n12 + m32 * n22 + m33 * n32;
-  out[6] = m31 * n13 + m32 * n23 + m33 * n33;
+  out[6] = m13 * n11 + m23 * n12 + m33 * n13;
+  out[7] = m13 * n21 + m23 * n22 + m33 * n23;
+  out[8] = m13 * n31 + m23 * n32 + m33 * n33;
+
+  out = out.map((n) => {
+    return Number(n.toFixed(2));
+  });
 
   return out;
 }

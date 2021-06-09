@@ -5,7 +5,7 @@ import {
   genRotateMatrix,
   genScaleMatrix,
   genTranslateMatrix,
-  transport,
+  matrixMultiply,
 } from "./utils";
 
 type GL = WebGLRenderingContext;
@@ -25,52 +25,73 @@ const TransformDemo = () => {
   const [gl, setGl] = useState<WebGLRenderingContext | null>(null);
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
-  const [rangeX, setRangeX] = useState(1);
-  const [rangeY, setRangeY] = useState(1);
+  const [scaleX, setScaleX] = useState(1);
+  const [scaleY, setScaleY] = useState(1);
   const [rotateDeg, setRotateDeg] = useState(0);
   const [program, setProgram] = useState<WebGLProgram | null>(null);
 
   const onTranslateXChange = (e: any) => {
     const val = Number(e.target.value) || 0;
     const width = (gl as GL).canvas.width;
+    const height = (gl as GL).canvas.height;
+
+    let matrix = genTranslateMatrix(val / width, translateY / height);
+    matrix = matrixMultiply(matrix, genScaleMatrix(scaleX, scaleY));
+    matrix = matrixMultiply(matrix, genRotateMatrix(rotateDeg));
+
     setTranslateX(val);
-
-    const matrix = transport(genTranslateMatrix(val / width));
-
     staticDraw(gl as GL, program as WebGLProgram, matrix);
   };
 
   const onTranslateYChange = (e: any) => {
     const val = Number(e.target.value) || 0;
+    const width = (gl as GL).canvas.width;
     const height = (gl as GL).canvas.height;
 
+    let matrix = genTranslateMatrix(translateX / width, val / height);
+    matrix = matrixMultiply(matrix, genScaleMatrix(scaleX, scaleY));
+    matrix = matrixMultiply(matrix, genRotateMatrix(rotateDeg));
+
     setTranslateY(val);
-
-    const matrix = transport(genTranslateMatrix(0, val / height));
     staticDraw(gl as GL, program as WebGLProgram, matrix);
   };
 
-  const onRangeXChange = (e: any) => {
+  const onScaleXChange = (e: any) => {
     const val = isNaN(Number(e.target.value)) ? 1 : Number(e.target.value);
-    setRangeX(val);
+    const width = (gl as GL).canvas.width;
+    const height = (gl as GL).canvas.height;
 
-    const matrix = transport(genScaleMatrix(val));
+    let matrix = genTranslateMatrix(translateX / width, translateY / height);
+    matrix = matrixMultiply(matrix, genRotateMatrix(rotateDeg));
+    matrix = matrixMultiply(matrix, genScaleMatrix(val, scaleY));
+
+    setScaleX(val);
     staticDraw(gl as GL, program as WebGLProgram, matrix);
   };
 
-  const onRangeYChange = (e: any) => {
+  const onScaleYChange = (e: any) => {
     const val = isNaN(Number(e.target.value)) ? 1 : Number(e.target.value);
-    setRangeY(val);
+    const width = (gl as GL).canvas.width;
+    const height = (gl as GL).canvas.height;
 
-    const matrix = transport(genScaleMatrix(1, Number(val)));
+    let matrix = genTranslateMatrix(translateX / width, translateY / height);
+    matrix = matrixMultiply(matrix, genRotateMatrix(rotateDeg));
+    matrix = matrixMultiply(matrix, genScaleMatrix(scaleX, val));
+
+    setScaleY(val);
     staticDraw(gl as GL, program as WebGLProgram, matrix);
   };
 
   const onRotateDegChange = (e: any) => {
     const val = Number(e.target.value) || 0;
-    setRotateDeg(val);
+    const width = (gl as GL).canvas.width;
+    const height = (gl as GL).canvas.height;
 
-    const matrix = genRotateMatrix(val * 2 * Math.PI);
+    let matrix = genTranslateMatrix(translateX / width, translateY / height);
+    matrix = matrixMultiply(matrix, genRotateMatrix(val));
+    matrix = matrixMultiply(matrix, genScaleMatrix(scaleX, scaleY));
+
+    setRotateDeg(val);
     staticDraw(gl as GL, program as WebGLProgram, matrix);
   };
 
@@ -104,9 +125,6 @@ const TransformDemo = () => {
     gl.compileShader(vertexShader);
     gl.compileShader(fragmentShader);
 
-    console.log("VERTEX SHADER: ", gl.getShaderInfoLog(vertexShader));
-    console.log("FRAGMENT SHADER: ", gl.getShaderInfoLog(fragmentShader));
-
     const program = gl.createProgram() as WebGLProgram;
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
@@ -132,7 +150,6 @@ const TransformDemo = () => {
     const normalizedMatrix = genNormalizedMatrix();
     gl.uniformMatrix3fv(u_matrix, false, normalizedMatrix);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    console.log(gl.getProgramInfoLog(program));
 
     const primitiveType = gl.TRIANGLES;
     const offsetIndex = 0;
@@ -188,31 +205,33 @@ const TransformDemo = () => {
           />
         </div>
         <div className="input-container">
-          <span className="label">scaleX: {rangeX}</span>
+          <span className="label">scaleX: {scaleX}</span>
           <input
             min={-2}
             max={2}
             step={0.01}
             type="range"
             name="scaleX"
-            value={rangeX}
-            onChange={onRangeXChange}
+            value={scaleX}
+            onChange={onScaleXChange}
           />
         </div>
         <div className="input-container">
-          <span className="label">scaleY: {rangeY}</span>
+          <span className="label">scaleY: {scaleY}</span>
           <input
             min={-2}
             max={2}
             step={0.01}
             type="range"
             name="scaleY"
-            value={rangeY}
-            onChange={onRangeYChange}
+            value={scaleY}
+            onChange={onScaleYChange}
           />
         </div>
         <div className="input-container">
-          <span className="label">rotateDeg: {rotateDeg}</span>
+          <span className="label">
+            rotateDeg: {Math.round(rotateDeg * 360)}°
+          </span>
           <input
             min={0}
             max={1}
