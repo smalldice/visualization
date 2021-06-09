@@ -35,6 +35,13 @@ export function genRotateMatrix(rad: number) {
   return [c, -s, 0, s, c, 0, 0, 0, 1];
 }
 
+export function genTranslateMatrix(x?: number, y?: number) {
+  if (x === undefined) x = 0;
+  if (y === undefined) y = 0;
+
+  return [1, 0, x, 0, 1, y, 0, 0, 1];
+}
+
 export function matrixMultiply(m: number[], n: number[]) {
   if (m === undefined) m = genNormalizedMatrix();
   if (n === undefined) n = genNormalizedMatrix();

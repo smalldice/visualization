@@ -4,7 +4,8 @@ import {
   genNormalizedMatrix,
   genRotateMatrix,
   genScaleMatrix,
-  vec2LeftMultiply,
+  genTranslateMatrix,
+  transport,
 } from "./utils";
 
 type GL = WebGLRenderingContext;
@@ -22,32 +23,53 @@ const TransformDemo = () => {
   const canvasRef = useRef(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const [gl, setGl] = useState<WebGLRenderingContext | null>(null);
+  const [translateX, setTranslateX] = useState(0);
+  const [translateY, setTranslateY] = useState(0);
   const [rangeX, setRangeX] = useState(1);
   const [rangeY, setRangeY] = useState(1);
   const [rotateDeg, setRotateDeg] = useState(0);
   const [program, setProgram] = useState<WebGLProgram | null>(null);
 
+  const onTranslateXChange = (e: any) => {
+    const val = Number(e.target.value) || 0;
+    const width = (gl as GL).canvas.width;
+    setTranslateX(val);
+
+    const matrix = transport(genTranslateMatrix(val / width));
+
+    staticDraw(gl as GL, program as WebGLProgram, matrix);
+  };
+
+  const onTranslateYChange = (e: any) => {
+    const val = Number(e.target.value) || 0;
+    const height = (gl as GL).canvas.height;
+
+    setTranslateY(val);
+
+    const matrix = transport(genTranslateMatrix(0, val / height));
+    staticDraw(gl as GL, program as WebGLProgram, matrix);
+  };
+
   const onRangeXChange = (e: any) => {
-    const val = e.target.value;
+    const val = isNaN(Number(e.target.value)) ? 1 : Number(e.target.value);
     setRangeX(val);
 
-    const matrix = genScaleMatrix(Number(val));
-
+    const matrix = transport(genScaleMatrix(val));
     staticDraw(gl as GL, program as WebGLProgram, matrix);
   };
 
   const onRangeYChange = (e: any) => {
-    const val = e.target.value;
+    const val = isNaN(Number(e.target.value)) ? 1 : Number(e.target.value);
     setRangeY(val);
 
-    const matrix = genScaleMatrix(1, Number(val));
-
+    const matrix = transport(genScaleMatrix(1, Number(val)));
     staticDraw(gl as GL, program as WebGLProgram, matrix);
   };
 
   const onRotateDegChange = (e: any) => {
-    const val = Number(e.target.value);
+    const val = Number(e.target.value) || 0;
     setRotateDeg(val);
+
     const matrix = genRotateMatrix(val * 2 * Math.PI);
     staticDraw(gl as GL, program as WebGLProgram, matrix);
   };
@@ -142,11 +164,35 @@ const TransformDemo = () => {
       <canvas ref={canvasRef} width="600" height="600"></canvas>
       <div className="tool-tik">
         <div className="input-container">
+          <span className="label">translateX: {translateX}</span>
+          <input
+            min={-100}
+            max={100}
+            step={0.1}
+            type="range"
+            name="rotateDeg"
+            value={translateX}
+            onChange={onTranslateXChange}
+          />
+        </div>
+        <div className="input-container">
+          <span className="label">translateY: {translateY}</span>
+          <input
+            min={-100}
+            max={100}
+            step={0.1}
+            type="range"
+            name="rotateDeg"
+            value={translateY}
+            onChange={onTranslateYChange}
+          />
+        </div>
+        <div className="input-container">
           <span className="label">scaleX: {rangeX}</span>
           <input
             min={-2}
             max={2}
-            step={0.1}
+            step={0.01}
             type="range"
             name="scaleX"
             value={rangeX}
@@ -158,7 +204,7 @@ const TransformDemo = () => {
           <input
             min={-2}
             max={2}
-            step={0.1}
+            step={0.01}
             type="range"
             name="scaleY"
             value={rangeY}
@@ -170,7 +216,7 @@ const TransformDemo = () => {
           <input
             min={0}
             max={1}
-            step={0.05}
+            step={0.01}
             type="range"
             name="rotateDeg"
             value={rotateDeg}
