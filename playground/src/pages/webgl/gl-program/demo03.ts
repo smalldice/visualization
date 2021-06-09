@@ -98,11 +98,9 @@ const drawDemo3 = (): GLProps => {
       gl.drawArrays(gl.TRIANGLES, 0, glPoints.length / 2);
     };
 
-    console.time("draw");
     for (let i = 0; i < 50; i++) {
       randomDraw();
     }
-    console.timeEnd("draw");
   };
 
   return {

@@ -3,6 +3,7 @@ import "./webgl.css";
 
 import GLCanvas from "./glcanvas";
 import TransformGL from "./transform/transform";
+import Texture from "./texture/texture";
 
 import {
   drawDemo1,
@@ -20,6 +21,7 @@ const WebGl = () => {
       <GLCanvas {...drawDemo4()}></GLCanvas>
       <GLCanvas {...drawDemo5()}></GLCanvas>
       <TransformGL></TransformGL>
+      <Texture></Texture>
     </div>
   );
 };

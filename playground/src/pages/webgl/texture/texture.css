@@ -1,18 +1,17 @@
-.transform-container {
+.texture-container {
   line-height: 0;
   font-size: 0;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 50px;
 }
 
-.transform-container canvas {
+.texture-container canvas {
   background-color: #eee;
 }
 
-.transform-container .tool-tik {
+.texture-container .tool-tik {
   height: 100%;
   margin-left: 20px;
   display: flex;
@@ -20,12 +19,12 @@
   align-items: center;
 }
 
-.transform-container .tool-tik .label {
+.texture-container .tool-tik .label {
   font-size: 14px;
   line-height: 28px;
   display: block;
 }
 
-.transform-container .tool-tik input {
+.texture-container .tool-tik input {
   margin-bottom: 20px;
 }
