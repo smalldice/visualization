@@ -14,6 +14,41 @@ const loadImage = (path: string): Promise<HTMLImageElement> => {
   });
 };
 
+const computeKernelWeight = (kernel: number[]): number => {
+  const weight = kernel.reduce(function (prev, curr) {
+    return prev + curr;
+  });
+
+  return weight <= 0 ? 1 : weight;
+};
+
+const kernels = {
+  normal: [0, 0, 0, 0, 1, 0, 0, 0, 0],
+  gaussianBlur: [0.045, 0.122, 0.045, 0.122, 0.332, 0.122, 0.045, 0.122, 0.045],
+  gaussianBlur2: [1, 2, 1, 2, 4, 2, 1, 2, 1],
+  gaussianBlur3: [0, 1, 0, 1, 1, 1, 0, 1, 0],
+  unsharpen: [-1, -1, -1, -1, 9, -1, -1, -1, -1],
+  sharpness: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+  sharpen: [-1, -1, -1, -1, 16, -1, -1, -1, -1],
+  edgeDetect: [
+    -0.125, -0.125, -0.125, -0.125, 1, -0.125, -0.125, -0.125, -0.125,
+  ],
+  edgeDetect2: [-1, -1, -1, -1, 8, -1, -1, -1, -1],
+  edgeDetect3: [-5, 0, 0, 0, 0, 0, 0, 0, 5],
+  edgeDetect4: [-1, -1, -1, 0, 0, 0, 1, 1, 1],
+  edgeDetect5: [-1, -1, -1, 2, 2, 2, -1, -1, -1],
+  edgeDetect6: [-5, -5, -5, -5, 39, -5, -5, -5, -5],
+  sobelHorizontal: [1, 2, 1, 0, 0, 0, -1, -2, -1],
+  sobelVertical: [1, 0, -1, 2, 0, -2, 1, 0, -1],
+  previtHorizontal: [1, 1, 1, 0, 0, 0, -1, -1, -1],
+  previtVertical: [1, 0, -1, 1, 0, -1, 1, 0, -1],
+  boxBlur: [0.111, 0.111, 0.111, 0.111, 0.111, 0.111, 0.111, 0.111, 0.111],
+  triangleBlur: [
+    0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625,
+  ],
+  emboss: [-2, -1, 0, -1, 1, 1, 0, 1, 2],
+};
+
 const setRectangle = (
   gl: GL,
   x: number,
@@ -69,12 +104,25 @@ const Texture = () => {
 
     uniform sampler2D u_image;
     uniform vec2 u_textureSize;
+    uniform float u_kernel[9];
+    uniform float u_kernelWeight;
 
     varying vec2 v_texCoord;
 
     void main() {
       vec2 onePixel = vec2(1.0, 1.0)/ u_textureSize;
-      gl_FragColor = texture2D(u_image, v_texCoord);
+      vec4 colorSum = 
+        texture2D(u_image, v_texCoord + onePixel * vec2(-1, -1)) * u_kernel[0] +
+        texture2D(u_image, v_texCoord + onePixel * vec2(0, -1))  * u_kernel[1] +
+        texture2D(u_image, v_texCoord + onePixel * vec2(1, -1))  * u_kernel[2] +
+        texture2D(u_image, v_texCoord + onePixel * vec2(-1, 0))  * u_kernel[3] +
+        texture2D(u_image, v_texCoord + onePixel * vec2(0, 0))   * u_kernel[4] +
+        texture2D(u_image, v_texCoord + onePixel * vec2(1, 0))   * u_kernel[5] +
+        texture2D(u_image, v_texCoord + onePixel * vec2(-1, 1))  * u_kernel[6] +
+        texture2D(u_image, v_texCoord + onePixel * vec2(0, -1))  * u_kernel[7] +
+        texture2D(u_image, v_texCoord + onePixel * vec2(1, 1))   * u_kernel[8] ;
+      
+        gl_FragColor = vec4((colorSum / u_kernelWeight).rgb, 1.0);
     }
   `;
 
@@ -102,9 +150,6 @@ const Texture = () => {
     async (gl: GL, program: WebGLProgram, points: Float32Array) => {
       const chaiImage = await loadImage(IMAGE_CHAI);
 
-      const positionLocation = gl.getAttribLocation(program, "position");
-      const texcoordLocation = gl.getAttribLocation(program, "texCoord");
-      console.log(positionLocation, texcoordLocation);
       // buffer1
       const positionBuffer = gl.createBuffer() as WebGLBuffer;
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -139,6 +184,16 @@ const Texture = () => {
         chaiImage
       );
 
+      // attributes & uniforms
+      const positionLocation = gl.getAttribLocation(program, "position");
+      const texcoordLocation = gl.getAttribLocation(program, "texCoord");
+      const u_resolution = gl.getUniformLocation(program, "u_resolution");
+      const u_textureSize = gl.getUniformLocation(program, "u_textureSize");
+      const u_kernel = gl.getUniformLocation(program, "u_kernel[0]");
+      const u_kernelWeight = gl.getUniformLocation(program, "u_kernelWeight");
+      const kernel = kernels.triangleBlur;
+      const weight = computeKernelWeight(kernel);
+
       // Draw rect
       gl.enableVertexAttribArray(positionLocation);
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -147,6 +202,7 @@ const Texture = () => {
       const normalized = false;
       const stride = 0;
       const offset = 0;
+
       gl.vertexAttribPointer(
         positionLocation,
         size,
@@ -169,13 +225,13 @@ const Texture = () => {
         offset
       );
 
-      // position uniform
-      const u_resolution = gl.getUniformLocation(program, "u_resolution");
+      // set position uniform
       gl.uniform2fv(u_resolution, [gl.canvas.width, gl.canvas.height]);
-
-      // texture uniform
-      const u_textureSize = gl.getUniformLocation(program, "u_textureSize");
+      // set texture uniform
       gl.uniform2fv(u_textureSize, [chaiImage.width, chaiImage.height]);
+      // set kernel uniforms
+      gl.uniform1fv(u_kernel, kernel);
+      gl.uniform1f(u_kernelWeight, weight);
 
       const primitiveType = gl.TRIANGLES;
       const startOffset = 0;
@@ -186,11 +242,11 @@ const Texture = () => {
   );
 
   const drawArray = useCallback((gl: GL, points: Float32Array) => {
-    const primitiveType = gl.TRIANGLES;
-    const startOffset = 0;
-    const count = points.length / 2;
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(primitiveType, startOffset, count);
+    // const primitiveType = gl.TRIANGLES;
+    // const startOffset = 0;
+    // const count = points.length / 2;
+    // gl.clear(gl.COLOR_BUFFER_BIT);
+    // gl.drawArrays(primitiveType, startOffset, count);
   }, []);
 
   const draw = useCallback(
