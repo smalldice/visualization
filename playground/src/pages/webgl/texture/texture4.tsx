@@ -233,8 +233,7 @@ const Texture = () => {
     const startOffset = 0;
     const count = 6;
     gl.drawArrays(primitiveType, startOffset, count);
-    console.log("shader info: ", gl.getShaderInfoLog(fragmentShader));
-    console.log("shader info: ", gl.getProgramInfoLog(program));
+    console.log(gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
   }, []);
 
   useEffect(() => {

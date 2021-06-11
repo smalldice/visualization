@@ -21,8 +21,33 @@
       /* transform-origin: 50px 50px; */
     }
 
+    .position-container {
+      position: relative;
+    }
+
+    #demo6 {
+      transform-origin: 0 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-image: url(https://pro-image.xiaoheiban.cn/202007/78b61be9-1664-4e13-aa01-be0c01ae707b.png);
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      background-color: rgba(125, 0, 255, 0.1);
+    }
+
     #demo7 {
-      transform-origin: 0% 100%;
+      transform-origin: 0 100%;
+      position: absolute;
+      top: 0;
+      /* left: 100px; */
+      left: 0;
+      background-image: url(https://pro-image.xiaoheiban.cn/202007/78b61be9-1664-4e13-aa01-be0c01ae707b.png);
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      background-color: rgba(125, 0, 255, 0.1);
     }
   </style>
 </head>
@@ -34,14 +59,19 @@
   <div id="demo3"></div>
   <div id="demo4"></div>
   <div id="demo5"></div>
-  <div id="demo6"></div>
-  <div id="demo7"></div>
+  <div class="position-container">
+    <div id="demo6"></div>
+    <div id="demo7"></div>
+  </div>
+
 </body>
 
 <script>
   function display(id, transform) {
     const el = document.getElementById(id)
     el.style.transform = transform
+    console.log(el, id, transform)
+
   }
 
   window.onload = function () {
@@ -53,7 +83,7 @@
 
     display('demo2', transform2)
 
-    const skewX = 89
+    const skewX = 1
     const skewY = 0
     display('demo3', `skew(${skewX}deg, ${skewY}deg)`)
 
@@ -68,11 +98,13 @@
     const scaleY = 3
 
 
-    display("demo6", `matrix(${scaleX}, 0,0,${scaleY}, 0,0)`)
+    // display("demo6", `matrix(${scaleX}, 0,0,${scaleY}, 0,0)`)
 
     const r = 10 * window.devicePixelRatio
     const rotateRad = 30 / 180 * Math.PI
+    // display("demo6")
 
+    display("demo7", "matrix(0, 1, 1, 0, 0, 0)")
   }
 </script>
 
